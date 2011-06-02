@@ -10,6 +10,7 @@ function Model(filename){
   this.vertexTextureCoordBuffer;
   this.vertexIndexBuffer;
   this.texture;
+  this.colorBuffer;
   
   
     
@@ -31,12 +32,20 @@ function Model(filename){
 			if(this.data==null)return;
 			var data=this.data; 	  
 			
-			
-			this.vertexTextureCoordBuffer = gl.createBuffer();
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.cube.t), gl.STATIC_DRAW);
-			this.vertexTextureCoordBuffer.itemSize = 2;
-			this.vertexTextureCoordBuffer.numItems = data.cube.t.length / 2;
+			if(data.cube.t != null){
+				this.vertexTextureCoordBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.cube.t), gl.STATIC_DRAW);
+				this.vertexTextureCoordBuffer.itemSize = 2;
+				this.vertexTextureCoordBuffer.numItems = data.cube.t.length / 2;
+			}
+			if(data.cube.c != null){
+				this.colorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.cube.c), gl.STATIC_DRAW);
+				this.colorBuffer.itemSize = 4;
+				this.colorBuffer.numItems = data.cube.c.length / 2;
+			}
 			
 			this.vertexPositionBuffer = gl.createBuffer();
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexPositionBuffer);
@@ -53,8 +62,12 @@ function Model(filename){
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexPositionBuffer);
 			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, this.vertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 			
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
-			gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, this.vertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			if(this.vertexTextureCoordBuffer != null){
+				//todo texture
+			}else if(this.colorBuffer != null){
+				gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+				gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, this.colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			}
 		  
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
 			gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);

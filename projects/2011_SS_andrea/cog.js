@@ -50,7 +50,7 @@ function startScene() {
 	
 	
 	var sep6 = new Separator();
-	var sphere2=new Model('sphere.json',gl);
+	var sphere2=new Model('colorCube.json',gl);
 	sep6.addChild(new Translation(0, 3, -13));
 	sep6.addChild(new RotorY(-1));
 	sep6.addChild(new Scale(0.5,0.2,0.5));
