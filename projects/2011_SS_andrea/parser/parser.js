@@ -29,7 +29,7 @@ var ColladaParser=function(){
 		return node;
 	}
 	
-	this.createMaterials=function(geometryNode){
+	this.createMaterial=function(geometryNode){
 		var materialName;
 		var materialCount;
 		var node = geometryNode.item(0).selectNodeSet("//polylist[@material]");
@@ -45,15 +45,15 @@ var ColladaParser=function(){
 			if(materialName!=null){
 				var m;
 				var materialArray;
-				for(var i=0;i<knownMaterial.length;i++){
-					m=knownMaterial[i];
-					if(materialName==m.name){
+				for(var i=0;i<this.knownMaterial.length;i++){
+					m=this.knownMaterial[i];
+					if(materialName.indexOf(m.name)!=-1){
 						materialArray=m.value;
 					}
 				}
 				if(materialArray!=null){
-					for(var i=0;i<materialCount;i++){
-						this.material.concat(materialArray);
+					for(var i=0;i<=materialCount;i++){
+						this.material=this.material.concat(materialArray);
 					}
 				}
 			}
@@ -105,7 +105,7 @@ var ColladaParser=function(){
 			
 			//read Material
 			if(this.knownMaterial!=null){
-				createMaterialArray(geometryNode);
+				this.createMaterial(geometryNode);
 			}
 			//step 1 read VERTEX ******************************************************************************
 			node=this.selectSemanticNode(geometryNode,"VERTEX");
@@ -179,6 +179,7 @@ var ColladaParser=function(){
 				indicieValue=indicies[0];
 				if(offset==vertexOffset){
 					//get vertexentry for this indicies				
+					//vertexSortedArray.push(vertices[indicieValue]);
 					indiciesForWeb.push(indicieValue);
 				}else if (offset==normalOffset){
 					//normalsSortedArray.push(normals[indicies[i]]);
@@ -199,9 +200,9 @@ var ColladaParser=function(){
 				indicies.shift();
 			}while(indicies.length>0);
 			
-			for(var i=0;i<vertexSortedArray.length;i++){
-				indiciesForWeb.push(i);
-			}
+			//for(var i=0;i<=vertexSortedArray.length;i++){
+				//indiciesForWeb.push(i);
+			//}
 			
 			this.vertices=vertices;
 			this.textures=textureSortedArray;
@@ -222,12 +223,8 @@ var ColladaParser=function(){
 		for(var i=0;i<scenechilds.getLength();i++){
 		    //search for geometry informations
 			geometryNode=scenechilds.item(i);
-			geometryNode=geometryNode.selectNodeSet("//instance_geometry");
-			
-			if(geometryNode.item(0)!=null){
-			
-				
-				
+			geometryNode=geometryNode.selectNodeSet("//instance_geometry");			
+			if(geometryNode.item(0)!=null){				
 				//has node material
 				materialNode=geometryNode.item(0).selectNodeSet("//bind_material/technique_common/instance_material");
 				if(materialNode.item(0)!=null){
@@ -275,13 +272,21 @@ var ColladaParser=function(){
 	
 	this.createJSON=function(){
 		var JSObject={
-				"cube":{
-					"v":this.vertices,
-					"t":this.textures,
-					"i":this.indicies,
-					"m":this.material
-				}
+				"cube":{}
 			};
+			
+			if(this.vertices.length>0){
+				JSObject.cube.v=this.vertices;
+			}
+			if(this.textures.length>0){
+				//JSObject.cube.t=this.textures;
+			}
+			if(this.indicies.length>0){
+				JSObject.cube.i=this.indicies;
+			}
+			if(this.material.length>0){
+				JSObject.cube.m=this.material;
+			}
 			
 			// Das Objekt zu JSON kodieren
 			var jsonCode = JSON.stringify(JSObject);
